@@ -2,16 +2,17 @@
  * Nama         : Jovianie, Fardan, Newten
  * NPM          : 140810240010, 140810240084, 140810240090
  * Nama Program : Parkir.cpp (Sistem Parkir)
- * Tanggal      : 7 Oktober 2025
+ * Tanggal      : 21 Oktober 2025
  */
 
-import java.util.Scanner;
-
 import static java.lang.System.exit;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.util.Scanner;
 
 class Time {
     private int jam;
-    private int menit; 
+    private int menit;
     private int detik;
 
     public Time() {
@@ -63,11 +64,11 @@ class Time {
         }
 
         if (detik >= 0 && detik < 60){
-            this.detik = detik; 
+            this.detik = detik;
         } else {
             this.detik = 0;
         }
-    } 
+    }
 
     public int getJam() {
         return this.jam;
@@ -104,7 +105,7 @@ class Time {
             this.detik = 0;
         }
     }
-    
+
     public void inputTime(Scanner input){
         while (true) {
             System.out.print("Masukkan waktu (HH:MM:SS atau HH MM SS): ");
@@ -118,7 +119,7 @@ class Time {
             }
         }
     }
-        
+
     public int toDetik(){
         return this.jam * 3600 + this.menit * 60 + this.detik;
     }
@@ -126,6 +127,13 @@ class Time {
     @Override
     public String toString() {
         return String.format("%02d:%02d:%02d", this.jam, this.menit, this.detik);
+    }
+
+    public void setNow(){
+        LocalTime now = LocalTime.now();
+        this.jam = now.getHour();
+        this.menit = now.getMinute();
+        this.detik = now.getSecond();
     }
 }
 
@@ -156,7 +164,7 @@ final class Date {
             this.tahun = 0;
         }
     }
-    public int getBulan() { 
+    public int getBulan() {
         return this.bulan;
     }
     public void setBulan(int bulan) {
@@ -166,7 +174,7 @@ final class Date {
             this.bulan = 0;
         }
     }
-    
+
     public int getTanggal() {
         return this.tanggal;
     }
@@ -232,7 +240,7 @@ final class Date {
                 throw new IllegalArgumentException("Tahun tidak boleh negatif.");
             }
 
-             // Validasi tahun 4 digit
+            // Validasi tahun 4 digit
             if (year < 1000 || year > 9999) {
                 throw new IllegalArgumentException("Tahun harus 4 digit (YYYY). Contoh: 2025");
             }
@@ -286,6 +294,13 @@ final class Date {
             totalHari += (kab ? 366:365);
         }
         return totalHari;
+    }
+
+    public void setNow(){
+        LocalDate now = LocalDate.now();
+        this.tahun = now.getYear();
+        this.bulan = now.getMonthValue();
+        this.tanggal = now.getDayOfMonth();
     }
 }
 
@@ -346,7 +361,7 @@ class Person {
 
     public void setAlamat(String alamat) {
         this.alamat = alamat;
-    }    
+    }
 
     public void inputPerson(){
         Scanner input = new Scanner (System.in);
@@ -359,7 +374,6 @@ class Person {
         setAlamat(alamat);
     }
 }
-
 
 abstract class Kendaraan {
     private Waktu waktuDatang;
@@ -408,11 +422,11 @@ abstract class Kendaraan {
             exit(-1);
         }
     }
-    
+
     public String getNoKendaraan() {
         return this.noKendaraan;
     }
-    
+
     public Person getPemilik() {
         return this.pemilik;
     }
@@ -467,13 +481,24 @@ abstract class Kendaraan {
         System.out.print("Masukkan status parkir (0 = Reguler, 1 = Menginap): ");
         setStatus(Integer.parseInt(input.nextLine()));
 
-        System.out.println("=== Waktu datang ===");
-        getWaktuDatang().getDate().inputDate(input);
-        getWaktuDatang().getTime().inputTime(input);
+        System.out.print("Gunakan waktu otomatis dari sistem? (y/n): ");
+        String pilihan = input.nextLine();
 
-        System.out.println("=== Waktu pulang ===");
-        getWaktuPulang().getDate().inputDate(input);
-        getWaktuPulang().getTime().inputTime(input);
+        if (pilihan.equalsIgnoreCase("y")){
+            getWaktuDatang().getDate().setNow();
+            getWaktuDatang().getTime().setNow();
+            System.out.print("Tekan 'Enter' untuk pulang dari parkir: ");
+            String enter = input.nextLine();
+            getWaktuPulang().getDate().setNow();
+            getWaktuPulang().getTime().setNow();
+        } else {
+            System.out.println("=== Waktu datang ===");
+            getWaktuDatang().getDate().inputDate(input);
+            getWaktuDatang().getTime().inputTime(input);
+            System.out.println("=== Waktu pulang ===");
+            getWaktuPulang().getDate().inputDate(input);
+            getWaktuPulang().getTime().inputTime(input);
+        }
     }
 }
 
@@ -592,18 +617,18 @@ class LarikKendaraan {
             totalBiaya += biaya;
 
             System.out.printf("%-3d %-8s %-10s %-10s %-12s %-12s %-10s %-10s %-8d %-12s %-10s %-15s %-15s%n",
-                (i+1),
-                k.getNoKendaraan(),
-                k.getClass().getSimpleName(),
-                k.getStatusString(),
-                k.getWaktuDatang().getDate().toString(),
-                k.getWaktuPulang().getDate().toString(),
-                k.getWaktuDatang().getTime().toString(),
-                k.getWaktuPulang().getTime().toString(),
-                k.lamaHari(), k.getLamaJamString(lamaJam),
-                String.format("%,d", biaya),
+                    (i+1),
+                    k.getNoKendaraan(),
+                    k.getClass().getSimpleName(),
+                    k.getStatusString(),
+                    k.getWaktuDatang().getDate().toString(),
+                    k.getWaktuPulang().getDate().toString(),
+                    k.getWaktuDatang().getTime().toString(),
+                    k.getWaktuPulang().getTime().toString(),
+                    k.lamaHari(), k.getLamaJamString(lamaJam),
+                    String.format("%,d", biaya),
 
-                k.getPemilik().getNama(), k.getPemilik().getAlamat()
+                    k.getPemilik().getNama(), k.getPemilik().getAlamat()
             );
         }
 
@@ -612,7 +637,7 @@ class LarikKendaraan {
     }
 }
 
-public class Parkir { 
+public class Parkir {
     public static void main(String[] args) {
         Scanner input = new Scanner(System.in);
         System.out.print("Masukkan jumlah kendaraan: ");
@@ -622,7 +647,7 @@ public class Parkir {
             System.out.println("Masukkan nomor yang valid.");
             exit(-1);
         }
-        
+
         LarikKendaraan larikKendaraan = new LarikKendaraan(jumlahKendaraan);
 
         for (int i = 0; i < jumlahKendaraan; i++){
